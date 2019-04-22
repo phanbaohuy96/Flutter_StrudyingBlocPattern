@@ -24,35 +24,37 @@ class _InfinityListState extends State<InfinityList> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        AppBackground(),
-        Padding(
-          padding: EdgeInsets.only(top: 25.0),
-          child: BlocBuilder(
-            bloc: _postBloc,
-            builder: (BuildContext context, PostState state){
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          AppBackground(),
+          Padding(
+            padding: EdgeInsets.only(top: 25.0),
+            child: BlocBuilder(
+              bloc: _postBloc,
+              builder: (BuildContext context, PostState state){
 
-              if(state is PostUninitialized) return Center(child: CircularProgressIndicator(),);
+                if(state is PostUninitialized) return Center(child: CircularProgressIndicator(),);
 
-              if(state is PostError) return Center(child: Text('failed to fetch posts'),);
+                if(state is PostError) return Center(child: Text('failed to fetch posts'),);
 
-              if(state is PostLoaded)
-              {
-                if(state.posts.isEmpty) return Center(child: Text('No post!'),);
+                if(state is PostLoaded)
+                {
+                  if(state.posts.isEmpty) return Center(child: Text('No post!'),);
 
-                return ListView.builder(
-                  controller: _scrollController,
-                  itemBuilder: (context, idx){
-                    return idx >= state.posts.length ? BottomLoader() : PostWidget(post: state.posts[idx]);
-                  },
-                  itemCount: state.hasReachedMax ? state.posts.length : state.posts.length + 1
-                );
-              }
-            },
-          ),
-        )
-      ],
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemBuilder: (context, idx){
+                      return idx >= state.posts.length ? BottomLoader() : PostWidget(post: state.posts[idx]);
+                    },
+                    itemCount: state.hasReachedMax ? state.posts.length : state.posts.length + 1
+                  );
+                }
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 

@@ -7,8 +7,9 @@ class SubmitButton extends StatefulWidget {
   final Size size;
   final Function onTap;
   final Text text;
+  final ButtonStatus status;
 
-  const SubmitButton({Key key, this.size, this.onTap, this.text}) : super(key: key);
+  SubmitButton({ this.size, this.onTap, this.text, this.status}) : super(key: UniqueKey());
 
   @override
   _SubmitButtonState createState() => _SubmitButtonState();
@@ -16,14 +17,12 @@ class SubmitButton extends StatefulWidget {
 enum ButtonStatus{
   original,
   tranform,
-  loadding,
   rollback
 }
 
 class _SubmitButtonState extends State<SubmitButton> with SingleTickerProviderStateMixin{
   
   Size _buttonSize;
-  ButtonStatus _buttonStatus = ButtonStatus.original;
 
   AnimationController _controller;
   Animation<double> _valueWidth, _rollbackWidthValue;
@@ -33,34 +32,32 @@ class _SubmitButtonState extends State<SubmitButton> with SingleTickerProviderSt
   void initState()
   {
     _buttonSize = widget.size;
-    _controller = new AnimationController(duration: Duration(milliseconds: 500), vsync: this);
+    _controller = new AnimationController(duration: Duration(milliseconds: 300), vsync: this);
     _controller.addListener(() => setState(() {}) );
-    _controller.addStatusListener((status){
-      if(status == AnimationStatus.completed)
-      {
-        _buttonStatus = ButtonStatus.loadding;
-        if(_buttonStatus == ButtonStatus.loadding)
-          _buttonSize = Size(widget.size.height, widget.size.height);
-      }
+    _controller.addStatusListener((status) {      
+      setState(() {
+        
+      });
     });
 
     _valueWidth = new Tween(begin: widget.size.width, end: widget.size.height).animate(_controller);
     _rollbackWidthValue = new Tween(begin: widget.size.height, end: widget.size.width).animate(_controller);
     super.initState();
+    _controller.forward();
   }
 
   _getWidth()
   {
-    if(_buttonStatus == ButtonStatus.loadding || _buttonStatus == ButtonStatus.tranform)
+    if( widget.status == ButtonStatus.tranform)
       return _valueWidth.value;
-    else if(_buttonStatus == ButtonStatus.rollback)
+    else if(widget.status == ButtonStatus.rollback)
       return _rollbackWidthValue.value;
     return widget.size.width;
   }
 
   _getChild()
   {
-    if(_buttonStatus == ButtonStatus.loadding)
+    if(widget.status == ButtonStatus.tranform && _valueWidth.value == _buttonSize.height)
       return CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(Colors.white));
     return widget.text;
   }
@@ -70,24 +67,9 @@ class _SubmitButtonState extends State<SubmitButton> with SingleTickerProviderSt
 
     return InkWell(
       onTap: () async {
-        if(_buttonStatus != ButtonStatus.loadding)
+        if(widget.status == ButtonStatus.original || (_controller.status != AnimationStatus.forward && widget.status == ButtonStatus.rollback))
         {
           if(widget.onTap != null) widget.onTap();
-          _buttonStatus = ButtonStatus.tranform;
-          _controller.reset();
-          await _controller.forward();
-          _buttonStatus = ButtonStatus.loadding;
-          await Future.delayed(Duration(seconds: 1));
-          
-          _controller.reset();
-          setState(() {
-            _buttonStatus = ButtonStatus.rollback;
-          });
-
-          await _controller.forward();
-          setState(() {
-            _buttonStatus = ButtonStatus.original;                
-          });
         }              
       },
       child: Container(
