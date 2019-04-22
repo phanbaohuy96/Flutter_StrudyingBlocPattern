@@ -1,3 +1,3 @@
-export 'lib/post_event.dart';
-export 'lib/post_state.dart';
-export 'lib/post_bloc.dart';
+export 'post_bloc/post_event.dart';
+export 'post_bloc/post_state.dart';
+export 'post_bloc/post_bloc.dart';
