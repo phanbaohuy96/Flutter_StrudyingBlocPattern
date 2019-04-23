@@ -6,14 +6,14 @@ class AppBackground extends StatelessWidget {
   final Color firstColor, secondColor, thirdColor;
 
   AppBackground():
-  firstColor = firstCircleColor,
-  secondColor = secondCircleColor,
-  thirdColor = thirdCircleColor;
+    firstColor = firstCircleColor,
+    secondColor = secondCircleColor,
+    thirdColor = thirdCircleColor;
 
   AppBackground.detail():
-  firstColor = firstDetailCircleColor,
-  secondColor = secondDetailCircleColor,
-  thirdColor = thirdDetailCircleColor;
+    firstColor = firstDetailCircleColor,
+    secondColor = secondDetailCircleColor,
+    thirdColor = thirdDetailCircleColor;
 
 
   @override

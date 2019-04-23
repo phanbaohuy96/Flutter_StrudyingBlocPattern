@@ -18,9 +18,35 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   final _loginBloc = LoginBloc();
   Size _buttonLoginSize = Size(0, 0);
+  TextEditingController _editingUserNameController, _editingPassController;
+  
 
-  onLogin(User user){
-    _loginBloc.dispatch(AccessLogin(user));
+  onLogin(){
+    _loginBloc.dispatch(AccessLogin(User(_editingUserNameController.text, _editingPassController.text)));
+  }
+
+  _genLoginBtnByStatus(ButtonStatus status, Function onTap)
+  {
+    return SubmitButton(
+      size: _buttonLoginSize,
+      text: Text("Sign in",style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w300, letterSpacing: 0.3,)),
+      status: status,
+      onTap: onTap,
+    );
+  }
+
+  @override
+  void initState() {
+    _editingUserNameController = TextEditingController();
+    _editingPassController = TextEditingController();
+    super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    _loginBloc.dispose();
+    super.dispose();
   }
 
   @override
@@ -31,6 +57,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       body: Stack(
         children: <Widget>[
           AppBackground(),
+          GestureDetector(
+            onTap:(){
+              FocusScope.of(context).requestFocus(new FocusNode());
+            }
+          ),
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -39,65 +70,51 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                 child: TextFormField(
                   decoration: InputDecoration(
                     fillColor: Colors.grey.withOpacity(0.5),
-                    labelText: "User name",
-                    
+                    labelText: "User name", 
                   ),
+                  controller: _editingUserNameController,
                 ),
               ),
               Padding(
                 padding: EdgeInsets.only(right: 25, left: 25),
-                child: TextFormField(
+                child: TextFormField(                  
                   decoration: InputDecoration(
                     fillColor: Colors.grey.withOpacity(0.5),
                     labelText: "Password",
                   ),
+                  controller: _editingPassController,
                 ),
               ),
               Padding(
                 padding: EdgeInsets.only(top: 20, bottom: 100),
                 child: BlocBuilder(
                   bloc: _loginBloc,
-                  builder: (BuildContext blocContext, LoginState state){
+                  builder: (BuildContext context, LoginState state){
                     if(state is LoginInitialization)
-                    {             
-                      return SubmitButton(
-                        size: _buttonLoginSize,
-                        text: Text("Sign in",style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w300, letterSpacing: 0.3,)),
-                        status: ButtonStatus.original,
-                        onTap: (){
-                          onLogin(User("abc", "abc"));
-                        },
-                      );
+                    {        
+                      return _genLoginBtnByStatus(ButtonStatus.original, onLogin);
                     } else if (state is LoginSuccessfully){ 
-                      //Navigator.of(context).push(MaterialPageRoute(builder: (context) => InfinityList()));                    
-                      return SubmitButton(
-                        size: _buttonLoginSize,
-                        text: Text("Sign in",style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w300, letterSpacing: 0.3,)),
-                        status: ButtonStatus.original,
-                        onTap: (){
-                          onLogin(User("abc", "abc"));
-                        },
-                      );
+                      WidgetsBinding.instance.addPostFrameCallback((_){
+                        print("Navigator.push!");
+                        Navigator.push(context, 
+                          MaterialPageRoute(builder: (context) => InfinityList())
+                        );
+                        return;
+                      });
+                      _loginBloc.dispatch(LoginInit());
+                      return Container();
 
-                      
                     } else if (state is LoginFailed){
-                      return SubmitButton(
-                        size: _buttonLoginSize,
-                        text: Text("Sign in",style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w300, letterSpacing: 0.3,)),
-                        status: ButtonStatus.rollback,
-                        onTap: (){
-                          onLogin(User("admin", "admin"));
-                        },
-                      );
+                      WidgetsBinding.instance.addPostFrameCallback((_){
+                        print("Show error!");
+                        Scaffold.of(context).showSnackBar( SnackBar( content: Text('Username or password is incorrect.'), backgroundColor: Colors.red, duration: Duration(seconds: 2),));
+                      });
+                      return _genLoginBtnByStatus(ButtonStatus.rollback, onLogin);
+
                     } else if(state is LoginProcessing)
                     {
-                      return SubmitButton(
-                        size: _buttonLoginSize,
-                        text: Text("Sign in",style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w300, letterSpacing: 0.3,)),
-                        status: ButtonStatus.tranform,
-                      );
+                      return _genLoginBtnByStatus(ButtonStatus.tranform, null);
                     }
-
                     return null;                    
                   },
                 )

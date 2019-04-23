@@ -12,6 +12,11 @@ class AccessLogin extends LoginEvent{
   String toString() => 'AccessLogin';
 }
 
+class LoginInit extends LoginEvent{
+  @override
+  String toString() => 'LoginInit';
+}
+
 class LoginFailedCallback extends LoginEvent{
   @override
   String toString() => 'LoginFailedCalback';

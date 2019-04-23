@@ -1,6 +1,6 @@
 class User{
 
-  final userName, password;
+  String userName, password;
 
   User(this.userName, this.password);
 

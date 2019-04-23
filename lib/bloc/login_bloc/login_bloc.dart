@@ -26,18 +26,19 @@ class LoginBloc extends Bloc<LoginEvent, LoginState>
     {
       yield LoginSuccessfully();  
     }
+    if(event is LoginInit)
+    {
+      yield LoginInitialization();  
+    }
 
   }
 
   accessLogin(User user) async{
-    print('AccessLogin');
     await Future.delayed(Duration(seconds: 2));
     if(user.userName.toString().toLowerCase() == "admin" && user.password.toString().toLowerCase() == "admin")
     {
-      print("LoginSuccessfullyCalback");
       this.dispatch(LoginSuccessfullyCallback());
     }else{
-      print("LoginFailedCalback");
       this.dispatch(LoginFailedCallback());
     }
   }

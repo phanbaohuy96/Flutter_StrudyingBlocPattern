@@ -28,6 +28,7 @@ class _SubmitButtonState extends State<SubmitButton> with SingleTickerProviderSt
   Animation<double> _valueWidth, _rollbackWidthValue;
 
 
+
   @override
   void initState()
   {
@@ -44,6 +45,12 @@ class _SubmitButtonState extends State<SubmitButton> with SingleTickerProviderSt
     _rollbackWidthValue = new Tween(begin: widget.size.height, end: widget.size.width).animate(_controller);
     super.initState();
     _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   _getWidth()
